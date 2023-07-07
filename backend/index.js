@@ -9,6 +9,7 @@ app.use(cors());
 app.use(router);
 
 const mqtt = require("mqtt");
+// const client = mqtt.connect("mqtt://localhost:1883/mqtt");
 const client = mqtt.connect("ws://broker.emqx.io:8083/mqtt");
 
 client.on("connect", function () {
@@ -50,39 +51,41 @@ client.on("message",async function(topic, message) {
   
 });
 
-postdata = async () => {
-  try {
-    await influx_client
-      .writePoints([
-        {
-          measurement: "weather",
-          fields: {
-            temperature: 20,
-            humidity: 20
-          },
-          tags: {
-            city: "Islamabad",
-          },
-        },
-      ])
-      .then(() => {
-        console.log("Data point written successfully");
-      })
-      .catch((error) => {
-        console.error("Error writing data point:", error);
-      });
-  } catch (err) {
-    console.log(err);
-  }
-};
+// Testing function fir inserting data in influxdb
+// postdata = async () => {
+//   try {
+//     await influx_client
+//       .writePoints([
+//         {
+//           measurement: "weather",
+//           fields: {
+//             temperature: 20,
+//             humidity: 20
+//           },
+//           tags: {
+//             city: "Islamabad",
+//           },
+//         },
+//       ])
+//       .then(() => {
+//         console.log("Data point written successfully");
+//       })
+//       .catch((error) => {
+//         console.error("Error writing data point:", error);
+//       });
+//   } catch (err) {
+//     console.log(err);
+//   }
+// };
 
-
+const port=process.env.PORT || '7000'
+const database_url=process.env.DB || 'mongodb://localhost:27017/weather'
 
 mongoose
-  .connect("mongodb://localhost:27017/weather")
+  .connect(database_url)
   .then(() => {
     console.log("success");
-    app.listen(7000);
+    app.listen(port);
   })
   .catch(() => {
     console.log("error in connecting db");
